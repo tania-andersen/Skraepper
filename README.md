@@ -1,0 +1,2 @@
+# Skraepper
+A GUI scraper
