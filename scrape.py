@@ -3,7 +3,6 @@ import logging
 import sys
 import time
 import tkinter as tk
-#import keyboard
 from random import randint, uniform
 from tkinter import ttk
 from urllib.parse import urljoin
@@ -141,8 +140,16 @@ def _create_folders_and_files():
     FAILS_LOG = open(FAILS_LOGNAME, "a")
 
 
+downloaded_detail_urls = set()
+
+
 def _download_page(page, url):
-    global file_number
+    global file_number, downloaded_detail_urls
+    if url in downloaded_detail_urls:
+        logging.info(f"Already downloaded {url}. Skipping.")
+        return
+
+    downloaded_detail_urls.add(url)
     _goto_and_wait(url, page)
     file_name = os.path.join(DETAIL_PAGES, f"pagesource_{file_number:04d}.html")
     logging.info("Downloading page source to %s", file_name)
@@ -207,6 +214,7 @@ def _scrape_paginated_pages(
         page_url = pagination_url_template.replace('*', str(page_num))
         _goto_and_wait(page_url, page)
         page_filename = f"pagination_page_{page_num:04}.html"
+        # TODO DUPLICATES ARE POSSIBLE
         with open(os.path.join(PAGINATION_PAGES, page_filename), "w", encoding="utf-8") as f:
             f.write(page.content())
         logging.info(f"Saved pagination page {page_num} to {os.path.join(PAGINATION_PAGES, page_filename)}")
@@ -299,14 +307,14 @@ def _crawl(page, follow_link_selector, start_page, follow_if_contains):
 def _filter_urls_by_domain(urls: List[str], base_url: str) -> List[str]:
     base_parsed = urlparse(base_url)
     base_domain = base_parsed.netloc
-    filtered_urls = []
+    filtered_urls = set()
     for url in urls:
         parsed = urlparse(url)
         if parsed.netloc == base_domain:
-            filtered_urls.append(url)
+            filtered_urls.add(url)
 
     logging.info(f"Found {len(filtered_urls)} filtered urls by domain")
-    return filtered_urls
+    return list(filtered_urls)
 
 
 def _filter_urls(urls: List[str], page_content: str, follow_link_selector: str,
@@ -382,7 +390,6 @@ def scrape(
     SUCCESS_TOKENS = success_tokens
     FAILURE_TOKENS = failure_tokens
 
-    print(f"SUCCESS_TOKENS: {SUCCESS_TOKENS}, FAILURE_TOKENS: {FAILURE_TOKENS}")
     if (pagination_url_template is not None and follow_link_selector is not None) or (
             pagination_url_template is None and follow_link_selector is None and pagination_url_folders is None):
         raise ValueError("Either pagination_url_template or follow_link must be set, but not both.")
@@ -412,8 +419,6 @@ def scrape(
         logging.info("Scrape was cancelled.")
         return
     _create_folders_and_files()
-    #SUCCESS_TOKENS = success_tokens.strip() if success_tokens.strip() else None
-    #FAILURE_TOKENS = failure_tokens.strip() if failure_tokens.strip() else None
     logging.info("Starting browser.")
     speed_delay_intervals_seconds = {
         "Fast": (1, 3),
@@ -426,7 +431,6 @@ def scrape(
     logging.info(f"Request delay: {SLEEP_MIN} to {SLEEP_MAX} seconds.")
     with sync_playwright() as p:
         browser, page = _create_page(p, headless)
-        #keyboard.add_hotkey('ctrl+q', _stop_program)
         if login_url:
             if not username:
                 logging.info("Waiting for login...")

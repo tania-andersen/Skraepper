@@ -13,9 +13,11 @@ PARENT = None
 if platform.system() == "Windows":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
+hyperlink = None
 
-def hyperlink(label_text):
-    print(f"Clicked on: {label_text}")
+def sethyperlink(func):
+    global hyperlink
+    hyperlink = func
 
 
 def get_widget_list():
@@ -27,15 +29,12 @@ def scrape_button_command():
     global PARENT
     values = {
         "pagination_url_template": widget["Pagination url"].get(),
-        "first_page": int(widget["Start page"].get()),
+        "first_page": int(widget["First page"].get()),
         "last_page": int(widget["Last page"].get()),
         "detail_url_selector": widget["Detail page selector"].get(),
         "login_url": widget["Login page"].get(),
         "headless": widget["Headless"].get(),
         "persistent_session": widget["With session"].get(),
-        # "success_tokens": [item.strip() for item in widget["Success token"].get().split(",")],
-        # "failure_tokens": [item.strip() for item in widget["Failure token"].get().split(",")],
-
         "success_tokens": [item.strip() for item in widget["Success token"].get().split(",") if item.strip()],
         "failure_tokens": [item.strip() for item in widget["Failure token"].get().split(",") if item.strip()],
 
@@ -59,14 +58,14 @@ def create_upper_frame(parent):
         upper_frame.rowconfigure(i, weight=1)
     labels = [
         "Pagination url",
-        "Start page",
+        "First page",
         "Last page",
         "Detail page selector"
     ]
     for i, label_text in enumerate(labels):
         label = ttk.Label(upper_frame, text=label_text, foreground="blue", cursor="hand2")
         label.grid(row=i, column=0, padx=10, pady=2, sticky="e")  # Right-align labels
-        label.bind("<Button-1>", lambda event, text=label_text: hyperlink(text))
+        label.bind("<Button-1>", lambda event, text=label_text: hyperlink(event,text))
         entry = ttk.Entry(upper_frame)
         entry.grid(row=i, column=1, padx=10, pady=2, sticky="ew")
         widget[label_text] = entry
@@ -74,18 +73,18 @@ def create_upper_frame(parent):
     style.configure("Bold.TLabel", font=("TkDefaultFont", 9, "bold"))
     options_label = ttk.Label(upper_frame, text="Options", style="Bold.TLabel")
     options_label.grid(row=4, column=1, padx=10, pady=2, sticky="w")
-    login_label = ttk.Label(upper_frame, text="Login page", foreground="blue", cursor="hand2")
+    login_label = ttk.Label(upper_frame, text="Login/GDPR page", foreground="blue", cursor="hand2")
     login_label.grid(row=5, column=0, padx=10, pady=2, sticky="e")  # Right-align label
-    login_label.bind("<Button-1>", lambda event, text="Login page": hyperlink(text))
+    login_label.bind("<Button-1>", lambda event, text="Login page": hyperlink(event,text))
     login_entry = ttk.Entry(upper_frame)
     login_entry.grid(row=5, column=1, padx=10, pady=2, sticky="ew")
     widget["Login page"] = login_entry
     save_session_label = ttk.Label(upper_frame, text="With session", foreground="blue", cursor="hand2")
     save_session_label.grid(row=6, column=0, padx=10, pady=2, sticky="e")
-    save_session_label.bind("<Button-1>", lambda event, text="With session": hyperlink(text))
+    save_session_label.bind("<Button-1>", lambda event, text="With session": hyperlink(event,text))
     headless_label = ttk.Label(upper_frame, text="Headless", foreground="blue", cursor="hand2")
     headless_label.grid(row=7, column=0, padx=10, pady=2, sticky="e")
-    headless_label.bind("<Button-1>", lambda event, text="Headless": hyperlink(text))
+    headless_label.bind("<Button-1>", lambda event, text="Headless": hyperlink(event,text))
     save_session_var = tk.BooleanVar(value=False)
     headless_var = tk.BooleanVar(value=False)
     save_session_checkbox = ttk.Checkbutton(upper_frame, variable=save_session_var)
@@ -101,13 +100,13 @@ def create_upper_frame(parent):
     for token_text, row in tokens:
         label = ttk.Label(upper_frame, text=token_text, foreground="blue", cursor="hand2")
         label.grid(row=row, column=0, padx=10, pady=2, sticky="e")  # Right-align labels
-        label.bind("<Button-1>", lambda event, text=token_text: hyperlink(text))
+        label.bind("<Button-1>", lambda event, text=token_text: hyperlink(event,text))
         entry = ttk.Entry(upper_frame)
         entry.grid(row=row, column=1, padx=10, pady=2, sticky="ew")
         widget[token_text] = entry  # Store the entry in the widget dictionary
     speed_label = ttk.Label(upper_frame, text="Speed", foreground="blue", cursor="hand2")
     speed_label.grid(row=10, column=0, padx=10, pady=2, sticky="e")
-    speed_label.bind("<Button-1>", lambda event, text="Speed": hyperlink(text))
+    speed_label.bind("<Button-1>", lambda event, text="Speed": hyperlink(event,text))
     speed_frame = ttk.Frame(upper_frame)
     speed_frame.grid(row=10, column=1, padx=10, pady=2, sticky="w")
     speed_var = tk.StringVar(value="Normal")

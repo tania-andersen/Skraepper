@@ -5,13 +5,14 @@ import threading
 import webbrowser
 from tkinter import filedialog, messagebox
 import os
-import yaml
 from scraper_gui import create_gui_2, get_widget_list as scraper_gui_widget_list
 from component_state import *
 from extract import extract
 from extract import OUTPUT_CSV
 import tkinter as tk
 from tkinter import ttk
+from syntax_error_msgs import handle_syntax_error
+
 
 root = None
 STATE_FILENAME = 'components_state.json'
@@ -23,12 +24,12 @@ text_area = None
 table = None
 widgets = []
 test_files_entry = None
-BASE_HELP_URL = "https://github.com/tania-andersen/Skraepper/blob/main/help.md"
+BASE_HELP_URL = "https://github.com/tania-andersen/Skraepper/blob/main/help.md#"
 
 def open_link(event, url):
-    if '#' in url:
-        index = url.index('#')
-        url = url[:index] + url[index:].replace(' ', '-')
+    if not BASE_HELP_URL in url:
+        url = BASE_HELP_URL + url
+    print(f"url: {url}")
     webbrowser.open_new(url)
 
 
@@ -50,6 +51,7 @@ def create_text_area(container):
     else:
         text_area = tk.Text(container, highlightthickness=0, wrap='none')
     text_area.grid(row=1, column=1, sticky="nsew", pady=10, padx=10)
+    # ACTIVATES INTERPRETER
     text_area.bind('<KeyRelease>', schedule_process)
     container.grid_rowconfigure(1, weight=1)
     v_scrollbar = tk.Scrollbar(container, command=text_area.yview)
@@ -61,8 +63,40 @@ def create_text_area(container):
     widgets.append(text_area)
 
 
-def create_test_tab(notebook):
-    global table, test_files_entry
+def create_ide_text_area(container):
+    global text_area
+
+    from ide_text_widget import  create_simple_ide_textfield
+
+    text_area = create_simple_ide_textfield(container)
+
+    text_area.grid(row=1, column=1, sticky="nsew", pady=10, padx=10)
+    # ACTIVATES INTERPRETER
+    text_area.bind('<KeyRelease>', schedule_process)
+    container.grid_rowconfigure(1, weight=1)
+    v_scrollbar = tk.Scrollbar(container, command=text_area.yview)
+    v_scrollbar.grid(row=1, column=2, sticky='ns', padx=0)
+    text_area['yscrollcommand'] = v_scrollbar.set
+    h_scrollbar = tk.Scrollbar(container, orient='horizontal', command=text_area.xview)
+    h_scrollbar.grid(row=2, column=1, sticky='ew', padx=0)  # Set padx=0 here
+    text_area['xscrollcommand'] = h_scrollbar.set
+    widgets.append(text_area)
+
+
+
+# Global variable for status bar
+status_var = None
+
+def update_status_bar(message,color="black"):
+    """Update the status bar text."""
+    global status_var, status_bar
+    status_var.set(message)
+    status_bar.config(fg=color)  # Set only the text color (foreground color)
+
+status_bar = None
+
+def create_refine_tab(notebook):
+    global table, test_files_entry, status_var, status_bar
     frame = tk.Frame(notebook)
     notebook.add(frame, text='Refine')
     paned_window = tk.PanedWindow(frame, orient=tk.VERTICAL, sashwidth=10, sashrelief=tk.RAISED)
@@ -86,26 +120,49 @@ def create_test_tab(notebook):
     test_files_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
     widgets.append(test_files_entry)
     pick_files_button = ttk.Button(text_field_button_frame, text="Pick test files",
-                                   command=lambda: pick_files(test_files_entry)) #root,
+                                   command=lambda: pick_files(test_files_entry))
     pick_files_button.pack(side=tk.LEFT, padx=10)
-    root.after(0, lambda: create_text_area(
+
+    #REFAC
+    #root.after(0, lambda: create_text_area(
+    #    container))
+
+    #from ide_text_widget import create_ide_textfield
+
+    root.after(0, lambda: create_ide_text_area(
         container))
+
+    #REFAC SLUT
+
     paned_window.add(upper_frame)
     paned_window.add(lower_frame)
     root.update()
     paned_window.sash_place(0, 0, root.winfo_height() // 2)
+    #lower frame
+    # Configure grid layout for lower_frame
+    lower_frame.grid_rowconfigure(1, weight=1)  # Allow the table to expand
+    lower_frame.grid_columnconfigure(0, weight=1)  # Allow the table to expand horizontally
+
+    # Output label (inside lower_frame, at the top)
     output_text = tk.StringVar()
     output_text.set("Output")
-    label = tk.Label(lower_frame, textvariable=output_text)
-    label.pack(anchor="w")
+    output_label = tk.Label(lower_frame, textvariable=output_text)
+    output_label.grid(row=0, column=0, sticky="w")
+
+    # Table with scrollbar (inside lower_frame, in the middle)
     style = ttk.Style()
     style.configure("Custom.Treeview", rowheight=28)  # Set the row height to 30
     table = ttk.Treeview(lower_frame, show="headings", style="Custom.Treeview")
     vsb = ttk.Scrollbar(lower_frame, orient="vertical", command=table.yview)
-    vsb.pack(side='right', fill='y')
-    table.pack(fill=tk.BOTH, expand=True)
+    vsb.grid(row=1, column=1, sticky="ns")  # Place scrollbar next to the table
     table.configure(yscrollcommand=vsb.set)
-    table.pack(fill='both', expand=True)
+    table.grid(row=1, column=0, sticky="nsew")  # Table fills the middle
+
+    # Status bar (inside lower_frame, at the bottom)
+    status_var = tk.StringVar()  # Create a StringVar for the status bar
+    status_var.set("")  # Set initial status
+    status_bar = tk.Label(lower_frame, textvariable=status_var, anchor=tk.W)  # Flat status bar
+    status_bar.grid(row=2, column=0, columnspan=2, sticky="ew")  # Span both columns and stick to the bottom
 
 
 def create_extract_tab(notebook):
@@ -115,7 +172,7 @@ def create_extract_tab(notebook):
     container = tk.Frame(frame, padx=10, highlightthickness=0)
     container.pack(fill='both', expand=True, pady=(10, 0))
     container.columnconfigure(1, weight=1, pad=10)
-    url = BASE_HELP_URL + "Test"
+    url = BASE_HELP_URL + "Folder"
     label = tk.Label(container, text="Folder", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="e")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
@@ -164,11 +221,14 @@ def start_extract():
     global EXTRACT_TEXT_AREA, FOLDER_ENTRY
     folder_path = FOLDER_ENTRY.get().strip()
     code = EXTRACT_TEXT_AREA.get("1.0", tk.END).strip()
-    extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
-            progress_callback=update_progress_bar)
-    update_progress_bar(1.0)
-    messagebox.showinfo("Extraction Complete", f"Extracted to {OUTPUT_CSV}.")
-    update_progress_bar(0.0)
+    try:
+        extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
+                progress_callback=update_progress_bar)
+        update_progress_bar(1.0)
+        messagebox.showinfo("Extraction Complete", f"Extracted to {OUTPUT_CSV}.")
+        update_progress_bar(0.0)
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
 
 
 def update_progress_bar(progress: float):
@@ -178,7 +238,6 @@ def update_progress_bar(progress: float):
     :param progress: A float between 0.0 and 1.0 representing the progress.
     """
     global PROGRESS_BAR
-    #print(f"progress: {progress}")
     PROGRESS_BAR["value"] = progress * 100  # Convert to percentage for the progress bar
     root.update_idletasks()  # Refresh the GUI
 
@@ -220,20 +279,17 @@ def create_root():
 if platform.system() == "Windows":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
-
 def interpret_code():
     global text_area, fill
     test_file_paths = test_files_entry.get().split(", ")
-    #print(f"test_file_paths: {test_file_paths}")
     code = text_area.get("1.0", tk.END)
+    # Clear prev status msg
+    update_status_bar("OK.", "gray")
     try:
         df = extract(code, test_file_paths, testing=True)
         update_table(df)
-    except yaml.parser.ParserError as e:
-        print(f"Parse error at line: {e.problem_mark.line + 1}, column: {e.problem_mark.column + 1}")
     except Exception as e:
-        raise e
-        """SelectorSyntaxError"""
+        handle_syntax_error(e,update_status_bar)
 
 
 def schedule_process(event):
@@ -254,6 +310,10 @@ def update_table(df):
         table.heading(col, text="")
         table.column(col, width=0)
     table["columns"] = []
+    #REFAC
+    if df is None:
+        return
+    #REFAC SLUT
     columns = df.columns.tolist()
     table["columns"] = columns
     for col in columns:
@@ -288,11 +348,17 @@ def start_gui():
     notebook.pack(fill=tk.BOTH, expand=True)
     create_scrape_tab(notebook)
     create_extract_tab(notebook)
-    create_test_tab(notebook)
+    create_refine_tab(notebook)
     components = scraper_gui_widget_list()
     components.extend(widgets)
     root.protocol("WM_DELETE_WINDOW", lambda: on_exit(root, components, 'components_state.json'))
     load_components_state(components, STATE_FILENAME)
+
+    #REFAC
+    from scraper_gui import sethyperlink
+    sethyperlink(open_link)
+    #REFAC SLUT
+
     root.mainloop()
 
 

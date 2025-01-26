@@ -1,4 +1,6 @@
 import warnings
+from tkinter import messagebox
+
 import pandas as pd
 import yaml
 from typing import List, Callable
@@ -12,6 +14,12 @@ from bs4 import BeautifulSoup
 from typing import List, Union, Pattern
 from collections import OrderedDict
 
+# Copyright Tania Andersen 2025 tan@ing.dk
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
+# NB: This is a quick and dirty ad-hoc prototype implementation of the interpreter.
+# It is not suitable for rework.
+
 OUTPUT_CSV = 'output.csv'
 DETAIL_PAGES = 'detail_pages'
 NO_DUPLICATES = True
@@ -24,6 +32,8 @@ FINAL_COLUMNS = None
 
 
 def _extract_fields(data, fields):
+    if not isinstance(data, dict):
+        return
     for key, value in data.items():
         if key != "selector":
             fields[key] = None
@@ -49,6 +59,9 @@ def _collect_text_between_tags(text):
 
 
 def _replace_char_in_dict_value(d, char_to_replace, replacement_char):
+    # Return immediately if d is not a dictionary
+    if not isinstance(d, dict):
+        return
     for k, v in d.items():
         if isinstance(v, dict):
             _replace_char_in_dict_value(v, char_to_replace, replacement_char)
@@ -195,6 +208,8 @@ def extract_block(df, block_name, block, soup):
     if 'contains' in block:
         contains_filter = True
         success_token = block['contains']
+        if not success_token:
+            raise ValueError("No success token in contains directive")
         html_nodes = filter_nodes(html_nodes, success_token, negate=False)
     elif 'contains-not' in block:
         contains_filter = True
@@ -212,6 +227,8 @@ def extract_block(df, block_name, block, soup):
 
 
 def filter_nodes(html_nodes, token, negate=False):
+    if not token or not isinstance(token, str):
+        raise ValueError("Token must be a non-empty string.")
     filtered_nodes = []
     regex_pattern = None
     if token.startswith("regex!"):
@@ -248,7 +265,12 @@ def extract_selector_field(df, field_name, selector, soup):
         text = _concatenate_unique_nodes(matching_nodes)
     elif selector.startswith("regex!"):
         regex = selector.split('!', 1)[-1].strip()
-        pattern = re.compile(regex)
+
+        try:
+            pattern = re.compile(regex)
+        except re.error as e:
+            raise ValueError(f"Invalid regex: {e}") from e
+
         get_text = _collect_text_between_tags(str(soup))
         matches = pattern.findall(get_text)
         text = ''
@@ -265,8 +287,20 @@ def extract_selector_field(df, field_name, selector, soup):
 def process_file(fields, filename, folder_path, write_out=True):
     global _COLUMN_NAMES, dropna, FINAL_COLUMNS
     file_path = os.path.join(folder_path, filename)
-    with open(file_path, mode='r', encoding='utf-8') as file:
-        html = file.read()
+
+    #REFAC
+    #with open(file_path, mode='r', encoding='utf-8') as file:
+    #    html = file.read()
+
+    try:
+        with open(file_path, mode='r', encoding='utf-8') as file:
+            html = file.read()
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to read file: {e}")
+        return
+
+    #REFAC SLUT
+
     soup = BeautifulSoup(html, 'html.parser')
     df = pd.DataFrame(columns=_COLUMN_NAMES)
     extract_fields(fields, soup, df)
@@ -302,7 +336,6 @@ def process_file(fields, filename, folder_path, write_out=True):
 
 def extract(input_code, folders_or_files: List[str], no_duplicates=True, error_hook=None, testing=False
             , progress_callback: Callable[[float], None] = None):
-    # print("----------- Extraction start ---------------")
     global NO_DUPLICATES, _COLUMN_NAMES, fillup, cfillup, filldown, dropna
     fillup = []
     filldown = []
@@ -313,9 +346,12 @@ def extract(input_code, folders_or_files: List[str], no_duplicates=True, error_h
     if (not testing) and os.path.exists(OUTPUT_CSV):
         os.remove(OUTPUT_CSV)
     fields_as_dict = _input_to_dict(input_code)
+
+    if not isinstance(fields_as_dict, dict):
+        raise ValueError("Bad code: Cannot parse key-values.")
+
     if (not isinstance(folders_or_files, list)) and os.path.isdir(folders_or_files):
         folder_path = folders_or_files
-        print(f"folder_path: {folder_path}")
         total_files = len(os.listdir(folders_or_files))
         if total_files == 0:
             return
