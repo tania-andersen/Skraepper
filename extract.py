@@ -12,12 +12,6 @@ from bs4 import BeautifulSoup
 from typing import List, Union, Pattern
 from collections import OrderedDict
 
-# Copyright Tania Andersen 2025 tan@ing.dk
-# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
-
-# NB: This is a quick and dirty ad-hoc prototype implementation of the interpreter.
-# It is not suitable for rework.
-
 OUTPUT_CSV = 'output.csv'
 DETAIL_PAGES = 'detail_pages'
 NO_DUPLICATES = True
