@@ -2,10 +2,12 @@
 # Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
 
 import tkinter as tk
-from ctypes import windll
+import os
 
-# Enable Windows DPI scaling
-windll.shcore.SetProcessDpiAwareness(1)
+# Enable Windows DPI scaling only on Windows
+if os.name == 'nt':  # Check if the OS is Windows
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(1)
 
 # Define keywords
 keywords = {"filldown", "dropna", "selector", "contains", "regex!", "nodes"}

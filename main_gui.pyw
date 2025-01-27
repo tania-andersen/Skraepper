@@ -332,8 +332,6 @@ def start_gui():
     root = create_root()
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
-    file_menu.add_command(label="Open scrape settings", command=None)
-    file_menu.add_command(label="Save scrape settings", command=None)
     file_menu.add_command(label="Detail Page Folder", command=None)  # Replace 'None' with the function to be called
     file_menu.add_command(label="Pagination Page Folder", command=None)
     file_menu.add_command(label="Error File", command=None)
