@@ -31,7 +31,7 @@ def open_link(event, url):
     url = url.replace(" ", "-")
     if BASE_HELP_URL not in url:
         url = BASE_HELP_URL + url
-    webbrowser.open_new(url)
+    webbrowser.open(url, new=0)
 
 
 def pick_files(test_files_entry):
@@ -179,7 +179,7 @@ def create_extract_tab(notebook):
     label = tk.Label(container, text="Folder", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="e")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
-    url = BASE_HELP_URL + "Extract"
+    url = BASE_HELP_URL + "Extraction"
     label = tk.Label(container, text="Extraction", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=1, column=0, sticky="ne", pady=10)
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))

@@ -45,7 +45,7 @@ A comma-separated list of words that must not be found on the pages.
 
 ## Speed
 
-Time between scrapes. `Slow` is easiest on the server
+Time between scrapes. `Slow` is easiest on the server.
 
 ## Scrape
 
@@ -67,14 +67,16 @@ The extraction Skraeppex code.
 
 This section describes the extraction options available in the program.
 
-## Test pages
+## Test pages<a name="Test"></a>
 
 Test pages for developing Skraeppex code, usually one or two from `detail_pages`.
 You can select more than one file by using Ctrl/Command 
 
 ## Extract
 
-The Skraeppex code to use for extraction.
+The Skraeppex code to use for extraction. The extracted data will be displayed in the
+lower part of the window, as you type along. Red text in the bottom will tell you if
+you have made a mistake in the code.
 
 
 # About
@@ -113,4 +115,12 @@ Scraepper uses these fine softwares:
 - Pyinstaller
 
   License: https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt
+
+-----------------------------
+
+*Der Lachende<br>
+Hat die furchtbare Nachricht</br>
+Nur noch nicht empfangen.*
+
+– Brecht
 
