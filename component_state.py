@@ -1,3 +1,6 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import tkinter as tk
 import json
 
@@ -23,7 +26,7 @@ def get_component_state(component):
 def save_components_state(components, file_name):
     components_state = []
     for i, component in enumerate(components):
-        component.unique_name = f"component_{i}"  # Assign unique name
+        component.unique_name = f"component_{i}"
         state = get_component_state(component)
         if state:
             components_state.append(state)
@@ -33,7 +36,6 @@ def save_components_state(components, file_name):
 
 # Helper function to apply a saved state to a single component
 def _apply_component_state(component, state):
-    #omponent_name = state["name"]
     if state["type"] == "Entry":
         component.delete(0, tk.END)
         component.insert(0, state["state"])

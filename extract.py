@@ -1,10 +1,11 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import warnings
 from tkinter import messagebox
-
 import pandas as pd
 import yaml
-from typing import List, Callable
-import re
+from typing import Callable
 import numpy as np
 import html as h
 import os
@@ -214,8 +215,8 @@ def extract_block(df, block_name, block, soup):
         nodes = block['nodes']
     if (not contains_filter) or (contains_filter and html_nodes):
         if not block_name.startswith("-"):  # only blocks can have '-'
-            text = extract_text(html_nodes, nodes)  # <- nodes here
-            append_found_text(block_name, df, text)  # not tested!
+            text = extract_text(html_nodes, nodes)
+            append_found_text(block_name, df, text)
         for html_node in html_nodes:
             extract_fields(block, html_node, df)
 
@@ -282,18 +283,12 @@ def process_file(fields, filename, folder_path, write_out=True):
     global _COLUMN_NAMES, dropna, FINAL_COLUMNS
     file_path = os.path.join(folder_path, filename)
 
-    #REFAC
-    #with open(file_path, mode='r', encoding='utf-8') as file:
-    #    html = file.read()
-
     try:
         with open(file_path, mode='r', encoding='utf-8') as file:
             html = file.read()
     except Exception as e:
         messagebox.showerror("Error", f"Failed to read file: {e}")
         return
-
-    #REFAC SLUT
 
     soup = BeautifulSoup(html, 'html.parser')
     df = pd.DataFrame(columns=_COLUMN_NAMES)
@@ -346,9 +341,10 @@ def extract(input_code, folders_or_files: List[str], no_duplicates=True, error_h
 
     if (not isinstance(folders_or_files, list)) and os.path.isdir(folders_or_files):
         folder_path = folders_or_files
+        print(f"folder_path: {folder_path}")
         total_files = len(os.listdir(folders_or_files))
         if total_files == 0:
-            return
+            return # Silent fail
         for i, filename in enumerate(os.listdir(folder_path)):
             process_file(fields_as_dict, filename, folder_path)
             progress_callback(i / total_files)

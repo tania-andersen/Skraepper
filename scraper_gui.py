@@ -1,3 +1,6 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import ctypes
 import logging
 import platform
@@ -35,8 +38,8 @@ def scrape_button_command():
         "login_url": widget["Login page"].get(),
         "headless": widget["Headless"].get(),
         "persistent_session": widget["With session"].get(),
-        "success_tokens": [item.strip() for item in widget["Success token"].get().split(",") if item.strip()],
-        "failure_tokens": [item.strip() for item in widget["Failure token"].get().split(",") if item.strip()],
+        "success_tokens": [item.strip() for item in widget["Success tokens"].get().split(",") if item.strip()],
+        "failure_tokens": [item.strip() for item in widget["Failure tokens"].get().split(",") if item.strip()],
 
         "speed": widget["Speed"].get(),
         "log_handler_emitter": log_to_text_field,
@@ -94,8 +97,8 @@ def create_upper_frame(parent):
     widget["With session"] = save_session_var
     widget["Headless"] = headless_var
     tokens = [
-        ("Success token", 8),
-        ("Failure token", 9)
+        ("Success tokens", 8),
+        ("Failure tokens", 9)
     ]
     for token_text, row in tokens:
         label = ttk.Label(upper_frame, text=token_text, foreground="blue", cursor="hand2")

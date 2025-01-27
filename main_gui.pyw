@@ -1,18 +1,18 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import logging
 import platform
 import ctypes
+import sys
 import threading
 import webbrowser
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import os
 from scraper_gui import create_gui_2, get_widget_list as scraper_gui_widget_list
 from component_state import *
-from extract import extract
-from extract import OUTPUT_CSV
-import tkinter as tk
-from tkinter import ttk
+from extract import extract, OUTPUT_CSV
 from syntax_error_msgs import handle_syntax_error
-
 
 root = None
 STATE_FILENAME = 'components_state.json'
@@ -26,10 +26,11 @@ widgets = []
 test_files_entry = None
 BASE_HELP_URL = "https://github.com/tania-andersen/Skraepper/blob/main/help.md#"
 
+
 def open_link(event, url):
-    if not BASE_HELP_URL in url:
+    url = url.replace(" ", "-")
+    if BASE_HELP_URL not in url:
         url = BASE_HELP_URL + url
-    print(f"url: {url}")
     webbrowser.open_new(url)
 
 
@@ -66,7 +67,7 @@ def create_text_area(container):
 def create_ide_text_area(container):
     global text_area
 
-    from ide_text_widget import  create_simple_ide_textfield
+    from ide_text_widget import create_simple_ide_textfield
 
     text_area = create_simple_ide_textfield(container)
 
@@ -83,17 +84,19 @@ def create_ide_text_area(container):
     widgets.append(text_area)
 
 
-
 # Global variable for status bar
 status_var = None
 
-def update_status_bar(message,color="black"):
+
+def update_status_bar(message, color="black"):
     """Update the status bar text."""
     global status_var, status_bar
     status_var.set(message)
     status_bar.config(fg=color)  # Set only the text color (foreground color)
 
+
 status_bar = None
+
 
 def create_refine_tab(notebook):
     global table, test_files_entry, status_var, status_bar
@@ -123,22 +126,22 @@ def create_refine_tab(notebook):
                                    command=lambda: pick_files(test_files_entry))
     pick_files_button.pack(side=tk.LEFT, padx=10)
 
-    #REFAC
-    #root.after(0, lambda: create_text_area(
+    # REFAC
+    # root.after(0, lambda: create_text_area(
     #    container))
 
-    #from ide_text_widget import create_ide_textfield
+    # from ide_text_widget import create_ide_textfield
 
     root.after(0, lambda: create_ide_text_area(
         container))
 
-    #REFAC SLUT
+    # REFAC SLUT
 
     paned_window.add(upper_frame)
     paned_window.add(lower_frame)
     root.update()
     paned_window.sash_place(0, 0, root.winfo_height() // 2)
-    #lower frame
+    # lower frame
     # Configure grid layout for lower_frame
     lower_frame.grid_rowconfigure(1, weight=1)  # Allow the table to expand
     lower_frame.grid_columnconfigure(0, weight=1)  # Allow the table to expand horizontally
@@ -263,7 +266,7 @@ def create_scrape_tab(notebook):
 
 def create_root():
     root = tk.Tk()
-    #root.iconbitmap('icon.ico')
+    # root.iconbitmap('icon.ico')
     root.title("Skræpper")
     root.update_idletasks()
     screen_width = root.winfo_screenwidth()
@@ -279,6 +282,7 @@ def create_root():
 if platform.system() == "Windows":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
+
 def interpret_code():
     global text_area, fill
     test_file_paths = test_files_entry.get().split(", ")
@@ -289,7 +293,7 @@ def interpret_code():
         df = extract(code, test_file_paths, testing=True)
         update_table(df)
     except Exception as e:
-        handle_syntax_error(e,update_status_bar)
+        handle_syntax_error(e, update_status_bar)
 
 
 def schedule_process(event):
@@ -310,10 +314,10 @@ def update_table(df):
         table.heading(col, text="")
         table.column(col, width=0)
     table["columns"] = []
-    #REFAC
+    # REFAC
     if df is None:
         return
-    #REFAC SLUT
+    # REFAC SLUT
     columns = df.columns.tolist()
     table["columns"] = columns
     for col in columns:
@@ -353,11 +357,12 @@ def start_gui():
     components.extend(widgets)
     root.protocol("WM_DELETE_WINDOW", lambda: on_exit(root, components, 'components_state.json'))
     load_components_state(components, STATE_FILENAME)
-
-    #REFAC
     from scraper_gui import sethyperlink
     sethyperlink(open_link)
-    #REFAC SLUT
+
+    if hasattr(sys, "_MEIPASS"):
+        import pyi_splash
+        pyi_splash.close()
 
     root.mainloop()
 

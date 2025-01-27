@@ -1,3 +1,6 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox

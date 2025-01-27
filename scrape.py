@@ -1,3 +1,6 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import json
 import logging
 import sys
@@ -181,11 +184,12 @@ def _goto_and_wait(detail_url: str, page: Page) -> None:
         _random_sleep(page)
         response = page.content()
 
+        # FIXME Tests in souce code, not text nodes.
         if SUCCESS_TOKENS == []:
             no_success_tokens = False
         else:
-            no_success_tokens = SUCCESS_TOKENS is not None and not any(
-                token.lower() in response.lower() for token in SUCCESS_TOKENS)
+            no_success_tokens = SUCCESS_TOKENS is not None and (not any(
+                token.lower() in response.lower() for token in SUCCESS_TOKENS))
         if FAILURE_TOKENS == []:
             failure_tokens = False
         else:
@@ -193,7 +197,10 @@ def _goto_and_wait(detail_url: str, page: Page) -> None:
         if no_success_tokens or failure_tokens:
             if PERSISTENT_SESSION:
                 save_session(CONTEXT)
-            logging.error("Failure tokens or no success tokens in source. URL: %s, written to error.html.", detail_url)
+            if no_success_tokens:
+                logging.error("No success tokens in source. URL: %s, written to error.html.", detail_url)
+            if failure_tokens:
+                logging.error("Failure tokens in source. URL: %s, written to error.html.", detail_url)
             with open("error.html", "w", encoding="utf-8") as f:
                 f.write(response)
             sys.exit(-1)
@@ -214,7 +221,7 @@ def _scrape_paginated_pages(
         page_url = pagination_url_template.replace('*', str(page_num))
         _goto_and_wait(page_url, page)
         page_filename = f"pagination_page_{page_num:04}.html"
-        # TODO DUPLICATES ARE POSSIBLE
+        # FIXME DUPLICATES ARE POSSIBLE
         with open(os.path.join(PAGINATION_PAGES, page_filename), "w", encoding="utf-8") as f:
             f.write(page.content())
         logging.info(f"Saved pagination page {page_num} to {os.path.join(PAGINATION_PAGES, page_filename)}")
@@ -275,12 +282,8 @@ def stop_program():
     _stop_program_flag = True
 
 
-# urls_to_scrape = []
-
-
 def _crawl(page, follow_link_selector, start_page, follow_if_contains):
     logging.info(f"Crawling")
-    # global urls_to_scrape
     urls_downloaded = []
     urls_to_scrape = [start_page]
     while urls_to_scrape:
@@ -349,8 +352,7 @@ def scrape(
         pagination_url_folders: List[str] = None,
         base_url: str = None,
 
-        # Follow Link Parameters
-        # NEW: points to a set of nodes that contains hrefs.
+        # Follow Link Parameters. Points to a set of nodes that contains hrefs.
         follow_link_selector: str = None,  # CSS selector for links to follow on each page
         start_page: str = None,  # URL of the starting page
         follow_if_contains: Union[str, Pattern[str]] = None,  # String or regex pattern to determine if a link should
@@ -389,7 +391,6 @@ def scrape(
     PARENT = parent
     SUCCESS_TOKENS = success_tokens
     FAILURE_TOKENS = failure_tokens
-
     if (pagination_url_template is not None and follow_link_selector is not None) or (
             pagination_url_template is None and follow_link_selector is None and pagination_url_folders is None):
         raise ValueError("Either pagination_url_template or follow_link must be set, but not both.")

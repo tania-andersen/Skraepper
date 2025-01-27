@@ -1,3 +1,6 @@
+# Copyright Tania Andersen 2025 @taniaandersen.bsky.social
+# Licence: GNU AFFERO GENERAL PUBLIC LICENSE Version 3 https://www.gnu.org/licenses/agpl-3.0.en.html
+
 import tkinter as tk
 from ctypes import windll
 
@@ -24,7 +27,6 @@ current_foreground_color = default_color
 last_text = None
 
 def highlight_syntax(text_widget):
-    #print("HILITE!")
     global current_foreground_color, last_text
 
     # Get the entire text content
@@ -55,11 +57,9 @@ def highlight_syntax(text_widget):
         text_widget.configure(foreground=new_foreground_color)
         current_foreground_color = new_foreground_color
 
-    #REFAC
     # Remove all existing tags (to reset highlighting)
     for tag in text_widget.tag_names():
         text_widget.tag_remove(tag, "1.0", "end")
-    #REFAC SLUT
 
     # Highlight keywords, identifiers, and values
     lines = text.split("\n")  # Split text into lines
@@ -105,14 +105,12 @@ def highlight_syntax(text_widget):
                     # Ensure the `keyword` tag takes precedence over the `value` tag
                     text_widget.tag_raise("keyword")
 
-        #REFAC
         else:
-            #print(f"No colon in {line}")
             # Explicitly tag lines without a colon in black (default color)
             start_index = f"{line_num}.0"
             end_index = f"{line_num}.end"
             text_widget.tag_add("bad_token", start_index, end_index)
-        #REFAC SLUT
+
 
         # Highlight keywords (anywhere in the text)
         for keyword in keywords:
@@ -196,12 +194,3 @@ def create_simple_ide_textfield(parent):
     schedule_highlighting(text_widget, parent, delay=300)
 
     return text_widget
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     root.title("Syntax Highlighting")
-#
-#     # Create the IDE text field
-#     text_widget = create_ide_textfield(root)
-#
-#     root.mainloop()
