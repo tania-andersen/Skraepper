@@ -29,7 +29,7 @@ Specifies a page where the scraper will wait for user interaction. Click
 ## With session
 
 Saves the session cookies and state for multiple sessions. If a scrape takes login,
-the session will mostly save a login-cookie.
+the session will most likely save a login-cookie.
 
 ## Headless
 
@@ -67,10 +67,10 @@ The extraction Skraeppex code.
 
 This section describes the options available for developing Skraeppex extraction code.
 
-## Test pages<a name="Test"></a>
+## Test pages<a name="Test">&nbsp;</a>
 
 Test pages for developing Skraeppex code, usually one or two from `detail_pages`.
-You can select more than one file by using Ctrl/Command 
+You can select more than one file by using Ctrl/Command and Shift keys.
 
 ## Extract
 
