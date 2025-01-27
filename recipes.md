@@ -1,4 +1,4 @@
-# Recipies
+# Recipes
 
 ## Onthemarket.com
 
