@@ -63,9 +63,9 @@ The folder to extract from, usually `detail_pages`.
 
 The extraction Skraeppex code.
 
-# Extract options
+# Refine options
 
-This section describes the extraction options available in the program.
+This section describes the options available for developing Skraeppex extraction code.
 
 ## Test pages<a name="Test"></a>
 
