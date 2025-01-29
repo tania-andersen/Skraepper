@@ -1,4 +1,7 @@
-# Recipes
+# Examples
+
+**N.B.: Scraping is often against the terms of service and might lead to banning. 
+Experiment at your own responsibility.**
 
 ## Onthemarket.com
 
@@ -14,7 +17,7 @@ GDPR dialog:
 
 ```https://www.onthemarket.com```
 
-Skraeppex:
+Skraeppex (pick the detail_pages folder in the folder dialog):
 ```
 filldown: Title, Price, Beds
 dropna: yes
@@ -42,7 +45,7 @@ Detail page selector:
 
 ```div > div.s-item__info.clearfix > a```
 
-Skraeppex:
+Skraeppex (pick the detail_pages folder in the folder dialog):
 ```
 Info: head > title
 Condition: 
@@ -66,11 +69,11 @@ Login page:
 
 ```https://www.linkedin.com/login/```
 
-Success tokens: 
+Success tokens (english locale): 
 
 ```Experience, results```
 
-Skraeppex:
+Skraeppex (english locale) (pick the detail_pages folder in the folder dialog):
 ```
 filldown: Name, Employer, Title
 dropna: yes
