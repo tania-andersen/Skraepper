@@ -125,6 +125,12 @@ def handle_syntax_error(e, update_status_bar):
     elif "No success token in contains directive" in error_message:
         update_status_bar("Success token missing after contains.", SYNTAX_ERROR_COLOR)
 
+    elif "Invalid regex:" in error_message:
+        start = error_message.find(":") + 1
+        end = error_message.find(" at")
+        reg_error = error_message[start:end].strip()
+        update_status_bar(f"Invalid regex: {reg_error}", SYNTAX_ERROR_COLOR)
+
     else:
         print(f"Unhandled error: {error_message}")
         raise e

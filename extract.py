@@ -222,6 +222,7 @@ def extract_block(df, block_name, block, soup):
 
 
 def filter_nodes(html_nodes, token, negate=False):
+    """Handles contains and contains-not directives."""
     if not token or not isinstance(token, str):
         raise ValueError("Token must be a non-empty string.")
     filtered_nodes = []
@@ -253,6 +254,7 @@ def extract_selector_field(df, field_name, selector, soup):
     if selector.startswith("contains!"):
         next_token = selector.split('!', 1)[-1].strip()
         if next_token.startswith("regex!"):
+            # contains! regex! - i.e. return full node if regex match - same as regex! (pattern)?
             regex_pattern = next_token.split("!")[-1].strip()
             matching_nodes = _find_matching_nodes(soup, re.compile(regex_pattern))
         else:
@@ -273,6 +275,23 @@ def extract_selector_field(df, field_name, selector, soup):
             text = ''.join(f"<NODE {i + 1}>{match}" for i, match in enumerate(matches))
         elif len(matches) == 1:
             text = matches[0]
+    #REFAC
+    # FIXME: these should return a list of matches, not first or largest.
+    elif selector.startswith("before!"):  # TODO Test
+        before = selector.split('!', 1)[-1].strip()
+        get_text = _collect_text_between_tags(str(soup))
+        # Return the whole string if token not found
+        text = get_text.split(before)[0] if before in get_text else get_text
+
+    elif selector.startswith("after!"):  # TODO Test
+        after = selector.split('!', 1)[-1].strip()
+        get_text = _collect_text_between_tags(str(soup))
+        # Return the whole string if token is empty or not found
+        if not after:  # Check if `after` is an empty string
+            text = get_text
+        else:
+            text = get_text.split(after)[-1] if after in get_text else get_text
+    #REFAC END
     else:
         html_nodes = soup.select(selector)
         text = extract_text(html_nodes)

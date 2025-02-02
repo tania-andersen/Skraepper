@@ -7,17 +7,19 @@ import os
 # Enable Windows DPI scaling only on Windows
 if os.name == 'nt':  # Check if the OS is Windows
     from ctypes import windll
+
     windll.shcore.SetProcessDpiAwareness(1)
 
 # Define keywords
-keywords = {"filldown", "dropna", "selector", "contains", "regex!", "nodes"}
+keywords = {"filldown", "dropna", "selector", "contains", "nodes", "regex!", "contains!",
+            "before!", "after!"}
 
 # Color Scheme
 background_color = "#FFFFFF"  # White
-keyword_color = "#643973"     # Purple
+keyword_color = "#643973"  # Purple
 identifier_color = "#3f7898"  # Blue
-value_color = "#609b55"       # Green
-default_color = "black"       # Default text color
+value_color = "#609b55"  # Green
+default_color = "black"  # Default text color
 
 # Constants
 TAB_SIZE = 3  # Number of spaces to insert when Tab is pressed
@@ -27,6 +29,7 @@ current_foreground_color = default_color
 
 # Track the last known text state
 last_text = None
+
 
 def highlight_syntax(text_widget):
     global current_foreground_color, last_text
@@ -48,11 +51,10 @@ def highlight_syntax(text_widget):
     # Determine if the foreground color needs to change
     if ":" in line_text[:col]:  # If there's a colon to the left of the cursor
         new_foreground_color = value_color
-        #print("GREEN!")
+        # print("GREEN!")
     else:
         new_foreground_color = default_color  # Default to black if no colon
-        #print("BLACK!")
-
+        # print("BLACK!")
 
     # Only update the foreground color if it has changed
     if new_foreground_color != current_foreground_color:
@@ -91,6 +93,7 @@ def highlight_syntax(text_widget):
                 end_index = f"{line_num}.end"
                 text_widget.tag_add("value", start_index, end_index)
 
+
                 # Highlight `regex!` in values
                 if "regex!" in right:
                     # Find the position of `regex!` within the value part
@@ -105,14 +108,15 @@ def highlight_syntax(text_widget):
                     # Apply the keyword highlight
                     text_widget.tag_add("keyword", start_index, end_index)
                     # Ensure the `keyword` tag takes precedence over the `value` tag
+                    # FIXME This is prob what makes before! and after! work.
                     text_widget.tag_raise("keyword")
+
 
         else:
             # Explicitly tag lines without a colon in black (default color)
             start_index = f"{line_num}.0"
             end_index = f"{line_num}.end"
             text_widget.tag_add("bad_token", start_index, end_index)
-
 
         # Highlight keywords (anywhere in the text)
         for keyword in keywords:
@@ -125,9 +129,11 @@ def highlight_syntax(text_widget):
                 text_widget.tag_add("keyword", start_index, end_index)
                 start_index = end_index
 
+
 def schedule_highlighting(text_widget, root, delay=300):
     highlight_syntax(text_widget)
     root.after(delay, schedule_highlighting, text_widget, root, delay)
+
 
 def handle_return(event):
     """
@@ -159,6 +165,7 @@ def handle_return(event):
     # Return "break" to prevent the default behavior of the Return key
     return "break"
 
+
 def handle_tab(event):
     """
     Handle the Tab key press to insert 3 spaces.
@@ -177,7 +184,8 @@ def create_simple_ide_textfield(parent):
     Create and configure a Text widget for an IDE-like interface without scrollbars or enclosing frame.
     """
     # Create a Text widget with no line wrapping
-    text_widget = tk.Text(parent, wrap="none", font=("Consolas", 10), foreground=default_color)
+    text_widget = tk.Text(parent, wrap="none", font=("Consolas", 10),
+                          foreground=default_color, undo=True, maxundo=100)
 
     # Bind the Return key to the custom handler
     text_widget.bind("<Return>", handle_return)

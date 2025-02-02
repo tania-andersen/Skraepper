@@ -314,10 +314,8 @@ def update_table(df):
         table.heading(col, text="")
         table.column(col, width=0)
     table["columns"] = []
-    # REFAC
     if df is None:
         return
-    # REFAC SLUT
     columns = df.columns.tolist()
     table["columns"] = columns
     for col in columns:
