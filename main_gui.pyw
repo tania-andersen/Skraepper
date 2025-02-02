@@ -4,11 +4,14 @@
 import logging
 import platform
 import ctypes
+import subprocess
 import sys
 import threading
 import webbrowser
 from tkinter import filedialog, messagebox, ttk
 import os
+
+import scraper_gui
 from scraper_gui import create_gui_2, get_widget_list as scraper_gui_widget_list
 from component_state import *
 from extract import extract, OUTPUT_CSV
@@ -27,13 +30,6 @@ test_files_entry = None
 BASE_HELP_URL = "https://github.com/tania-andersen/Skraepper/blob/main/help.md#"
 
 
-def open_link(event, url):
-    url = url.replace(" ", "-")
-    if BASE_HELP_URL not in url:
-        url = BASE_HELP_URL + url
-    webbrowser.open(url, new=0)
-
-
 def pick_files(test_files_entry):
     curr_dir = os.getcwd()
     file_paths = filedialog.askopenfilenames(initialdir=curr_dir)
@@ -42,6 +38,13 @@ def pick_files(test_files_entry):
     test_files_entry.insert(0, ', '.join(file_paths))
     global test_file_paths
     test_file_paths = list(file_paths)
+
+
+def open_link(event, url):
+    url = url.replace(" ", "-")
+    if BASE_HELP_URL not in url:
+        url = BASE_HELP_URL + url
+    webbrowser.open(url, new=0)
 
 
 def create_text_area(container):
@@ -64,10 +67,10 @@ def create_text_area(container):
     widgets.append(text_area)
 
 
-def create_ide_text_area(container):
+def create_syntaxed_text_area(container):
     global text_area
 
-    from ide_text_widget import create_simple_ide_textfield
+    from syntaxed_text_widget import create_simple_ide_textfield
 
     text_area = create_simple_ide_textfield(container)
 
@@ -132,7 +135,7 @@ def create_refine_tab(notebook):
 
     # from ide_text_widget import create_ide_textfield
 
-    root.after(0, lambda: create_ide_text_area(
+    root.after(0, lambda: create_syntaxed_text_area(
         container))
 
     # REFAC SLUT
@@ -330,16 +333,18 @@ def start_gui():
     root = create_root()
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
-    file_menu.add_command(label="Detail Page Folder", command=None)  # Replace 'None' with the function to be called
-    file_menu.add_command(label="Pagination Page Folder", command=None)
-    file_menu.add_command(label="Error File", command=None)
-    file_menu.add_command(label="Log", command=None)
+    file_menu.add_command(label="Detail Page Folder",
+                          command=lambda: open_path(os.path.join(os.getcwd(), "detail_pages")))
+    file_menu.add_command(label="Pagination Page Folder", command=lambda: open_path(os.path.join(os.getcwd(), "pagination_pages")))
+    file_menu.add_command(label="Error page", command=lambda: open_path(os.path.join(os.getcwd(), "error.html")))
+    file_menu.add_command(label="Log", command=lambda: open_path(os.path.join(os.getcwd(), scraper_gui.SKRAEPPER_LOG)))
+    file_menu.add_command(label="Delete session state", command=None)
     file_menu.add_separator()
     file_menu.add_command(label="Quit", command=root.quit)
     menu_bar.add_cascade(label="File", menu=file_menu)
     help_menu = tk.Menu(menu_bar, tearoff=0)
-    help_menu.add_command(label="Help...", command=None)  # Replace 'None' with the function to be called
-    help_menu.add_command(label="About", command=None)
+    help_menu.add_command(label="Help", command=lambda: open_link(None, ""))  # Rdef open_link(event, url):
+    help_menu.add_command(label="About", command=lambda: open_link(None, "about"))
     menu_bar.add_cascade(label="Help", menu=help_menu)
     root.config(menu=menu_bar)
     style = ttk.Style()
@@ -361,6 +366,19 @@ def start_gui():
         pyi_splash.close()
 
     root.mainloop()
+
+def open_path(path):
+    try:
+        # Open the path (file or folder) in a platform-independent way
+        if sys.platform == "win32":
+            os.startfile(path)  # Windows
+        elif sys.platform == "darwin":
+            subprocess.run(["open", path])  # macOS
+        else:
+            subprocess.run(["xdg-open", path])  # Linux
+    except Exception as e:
+        # Show an error dialog if something goes wrong
+        messagebox.showerror("Error", f"Failed to open path: {e}")
 
 
 def on_exit(root, components, file_name):

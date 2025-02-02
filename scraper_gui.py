@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import scrape
 
+SKRAEPPER_LOG = "skraepper.log"
 widget = {}
 widget_list = []
 PARENT = None
@@ -44,7 +45,7 @@ def scrape_button_command():
         "speed": widget["Speed"].get(),
         "log_handler_emitter": log_to_text_field,
         "parent": PARENT,
-        "log_file": "skreapper.log"
+        "log_file": SKRAEPPER_LOG
     }
 
     threading.Thread(target=lambda: (
