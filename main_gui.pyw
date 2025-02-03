@@ -328,17 +328,21 @@ def update_table(df):
         table.insert("", tk.END, values=list(row))
 
 
+notebook = None
+
+
 def start_gui():
-    global root
+    global root, notebook
     root = create_root()
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
     file_menu.add_command(label="Detail Page Folder",
                           command=lambda: open_path(os.path.join(os.getcwd(), "detail_pages")))
-    file_menu.add_command(label="Pagination Page Folder", command=lambda: open_path(os.path.join(os.getcwd(), "pagination_pages")))
+    file_menu.add_command(label="Pagination Page Folder",
+                          command=lambda: open_path(os.path.join(os.getcwd(), "pagination_pages")))
     file_menu.add_command(label="Error page", command=lambda: open_path(os.path.join(os.getcwd(), "error.html")))
     file_menu.add_command(label="Log", command=lambda: open_path(os.path.join(os.getcwd(), scraper_gui.SKRAEPPER_LOG)))
-    file_menu.add_command(label="Delete session state", command=None)
+    file_menu.add_command(label="Delete session state", command=delete_session)
     file_menu.add_separator()
     file_menu.add_command(label="Quit", command=root.quit)
     menu_bar.add_cascade(label="File", menu=file_menu)
@@ -351,6 +355,7 @@ def start_gui():
     style.configure('TNotebook.Tab', padding=[10, 5])
     notebook = ttk.Notebook(root, style='TNotebook')
     notebook.pack(fill=tk.BOTH, expand=True)
+    notebook.bind("<<NotebookTabChanged>>", on_tab_change)
     create_scrape_tab(notebook)
     create_extract_tab(notebook)
     create_refine_tab(notebook)
@@ -360,12 +365,30 @@ def start_gui():
     load_components_state(components, STATE_FILENAME)
     from scraper_gui import sethyperlink
     sethyperlink(open_link)
-
     if hasattr(sys, "_MEIPASS"):
         import pyi_splash
         pyi_splash.close()
 
     root.mainloop()
+
+
+def delete_session():
+    try:
+        if os.path.exists("session.json"):
+            os.remove("session.json")
+            messagebox.showinfo("Success", "Session state has been deleted successfully.")
+        else:
+            messagebox.showwarning("File Not Found", "No session was found.")
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to delete session.json: {e}")
+
+
+def on_tab_change(event):
+    selected_tab = notebook.index(notebook.select())
+    tab_label = notebook.tab(selected_tab, "text")
+    if tab_label == "Refine":
+        interpret_code()
+
 
 def open_path(path):
     try:

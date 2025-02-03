@@ -1,80 +1,107 @@
-# Pagination options
+# Help
+
+## File menu
+
+### Detail page folder, Pagination page folder, Error page, Log
+
+Opens the folder or file.
+
+### Delete session state
+
+Deletes the browser session. If *With session* checkbox is checked, and the scarpe url
+domain has changed from previously, the session state is automantically overwritten.
+
+### Quit
+
+Quits the program.
+
+## Help menu
+
+### Help
+
+Shows this document.
+
+### About
+
+Shows the About section in this document.
+
+## Pagination options
 
 This section describes the pagination options available in the program.
 
-## Pagination url
+### Pagination url
 
 Specifies the URL template to use for pagination. The template should include a placeholder for the page number, represented by an asterisk (`*`).
 
 For example, if the pagination URLs for a website are of the form `https://example.com/page/1`, `https://example.com/page/2`, etc., then the pagination
 URL template would be `https://example.com/page/*`.
 
-## First page
+### First page
 
 Specifies the number of the first page to scrape.
 
-## Last page
+### Last page
 
 Specifies the number of the last page to scrape.
 
-## Detail page selector
+### Detail page selector
 
 Specifies the CSS selector to use to extract detail URLs from each page
 
-## Login/GDPR Page
+### Login/GDPR Page
 
 Specifies a page where the scraper will wait for user interaction. Click
 "proceed" in the dialog after user interaction, such as login or clicking a cookie button.
 
-## With session
+### With session
 
 Saves the session cookies and state for multiple sessions. If a scrape takes login,
 the session will most likely save a login-cookie.
 
-## Headless
+### Headless
 
 Will hide the browser window. Only for experienced users, and use with care.
 
-## Success tokens
+### Success tokens
 
 A comma-separated list of words that must be found on the pages.
 
-## Failure tokens
+### Failure tokens
 
 A comma-separated list of words that must not be found on the pages.
 
-## Speed
+### Speed
 
 Time between scrapes. `Slow` is easiest on the server.
 
-## Scrape
+### Scrape
 
 Click the button to start the scrape.
 
-# Extract options
+## Extract options
 
 This section describes the extraction options available in the program.
 
-## Folder
+### Folder
 
 The folder to extract from, usually `detail_pages`.
 
-## Extraction
+### Extraction
 
-The extraction Skraeppex code.
+The extraction [Skraeppex](skraeppex.md) code.
 
-# Refine options
+## Refine options
 
 This section describes the options available for developing Skraeppex extraction code.
 
-## Test pages<a name="Test">&nbsp;</a>
+### Test pages<a name="Test">&nbsp;</a>
 
 Test pages for developing Skraeppex code, usually one or two from `detail_pages`.
 You can select more than one file by using Ctrl/Command and Shift keys.
 
-## Extract
+### Extract
 
-The Skraeppex code to use for extraction. The extracted data will be displayed in the
+The [Skraeppex](skraeppex.md) code to use for extraction. The extracted data will be displayed in the
 lower part of the window, as you type along. Red text in the bottom will tell you if
 you have made a mistake in the code.
 

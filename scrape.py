@@ -164,11 +164,6 @@ def _download_page(page, url):
 _stop_program_flag = False
 
 
-def _stop_program():
-    global _stop_program_flag
-    _stop_program_flag = True
-
-
 def _goto_and_wait(detail_url: str, page: Page) -> None:
     global SUCCESS_TOKENS, FAILURE_TOKENS, FAILS_LOG, _stop_program_flag
 

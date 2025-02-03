@@ -123,7 +123,15 @@ def create_upper_frame(parent):
     button_frame.grid(row=11, column=1, padx=10, pady=2)
     scrape_button = ttk.Button(button_frame, text="Scrape", command=scrape_button_command)
     scrape_button.pack(side="left", padx=(0, 10))
-    stop_button = ttk.Button(button_frame, text="Stop")
+    #stop_button = ttk.Button(button_frame, text="Stop")
+
+    stop_button = ttk.Button(
+        button_frame,
+        text="Stop",
+        command=scrape.stop_program  # Bind the button to the stop_program function
+    )
+
+
     stop_button.pack(side="left")
     widget_list = list(widget.values())
     return upper_frame
