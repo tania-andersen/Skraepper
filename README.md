@@ -1,3 +1,5 @@
+<img src="https://github.com/tania-andersen/Skraepper/blob/main/logo.png" alt="Scraper interface" width="600" />
+
 # Skraepper
 A GUI scraper for journalists and researchers.
 
