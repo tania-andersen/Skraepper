@@ -2,14 +2,18 @@
 
 ## File menu
 
+### Output file
+
+Opens the output file. Make sure the chosen app can handle comma seperated files.
+
 ### Detail page folder, Pagination page folder, Error page, Log
 
 Opens the folder or file.
 
 ### Delete session state
 
-Deletes the browser session. If *With session* checkbox is checked, and the scarpe url
-domain has changed from previously, the session state is automantically overwritten.
+Deletes the browser session. If *With session* checkbox is checked, and the scrape url
+domain has changed from previously, the previous session state is automatically overwritten.
 
 ### Quit
 
@@ -64,11 +68,13 @@ Will hide the browser window. Only for experienced users, and use with care.
 
 ### Success tokens
 
-A comma-separated list of words that must be found on the pages.
+A comma-separated list of words where at least one must be found on the pages. If none found,
+the scraper will stop and save the problem page  to `error.html`.
 
 ### Failure tokens
 
-A comma-separated list of words that must not be found on the pages.
+A comma-separated list of words that must not be found on the pages. If one is
+found, the scraper will stop and save the problem page to `error.html`.
 
 ### Speed
 
@@ -86,7 +92,7 @@ This section describes the extraction options available in the program.
 
 The folder to extract from, usually `detail_pages`.
 
-### Extraction
+### Skraeppex (Extract)
 
 The extraction [Skraeppex](skraeppex.md) code.
 
@@ -94,12 +100,12 @@ The extraction [Skraeppex](skraeppex.md) code.
 
 This section describes the options available for developing Skraeppex extraction code.
 
-### Test pages<a name="Test">&nbsp;</a>
+### Test pages
 
 Test pages for developing Skraeppex code, usually one or two from `detail_pages`.
 You can select more than one file by using Ctrl/Command and Shift keys.
 
-### Extract
+### Skraeppex (Refine)
 
 The [Skraeppex](skraeppex.md) code to use for extraction. The extracted data will be displayed in the
 lower part of the window, as you type along. Red text in the bottom will tell you if

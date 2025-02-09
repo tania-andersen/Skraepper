@@ -116,8 +116,8 @@ def create_refine_tab(notebook):
     label = tk.Label(container, text="Test pages", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="w")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
-    url = BASE_HELP_URL + "Extract"
-    label = tk.Label(container, text="Extract", anchor="e", fg="blue", cursor="hand2")
+    url = BASE_HELP_URL + "Skraeppex (Refine)"
+    label = tk.Label(container, text="Skraeppex", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=1, column=0, sticky="ne", pady=10)
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
     text_field_button_frame = tk.Frame(container)
@@ -182,8 +182,8 @@ def create_extract_tab(notebook):
     label = tk.Label(container, text="Folder", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="e")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
-    url = BASE_HELP_URL + "Extraction"
-    label = tk.Label(container, text="Extraction", anchor="e", fg="blue", cursor="hand2")
+    url = BASE_HELP_URL + "Skraeppex (Extract)"
+    label = tk.Label(container, text="Skraeppex", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=1, column=0, sticky="ne", pady=10)
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
     text_field_button_frame = tk.Frame(container)
@@ -228,10 +228,11 @@ def start_extract():
     folder_path = FOLDER_ENTRY.get().strip()
     code = EXTRACT_TEXT_AREA.get("1.0", tk.END).strip()
     try:
-        extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
+        ok = extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
                 progress_callback=update_progress_bar)
-        update_progress_bar(1.0)
-        messagebox.showinfo("Extraction Complete", f"Extracted to {OUTPUT_CSV}.")
+        if ok:
+            update_progress_bar(1.0)
+            messagebox.showinfo("Extraction Complete", f"Extracted to {OUTPUT_CSV}.")
         update_progress_bar(0.0)
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
@@ -270,7 +271,13 @@ def create_scrape_tab(notebook):
 def create_root():
     root = tk.Tk()
     # root.iconbitmap('icon.ico')
-    root.title("Skræpper")
+    root.title("Skraepper")
+
+    # Apply the "clam" theme only on Linux
+    if platform.system() == "Linux":
+        style = ttk.Style(root)
+        style.theme_use("clam")  # Set the theme to "clam"
+
     root.update_idletasks()
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
@@ -280,10 +287,6 @@ def create_root():
     window_y = int((screen_height - window_height) / 2)
     root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}')
     return root
-
-
-if platform.system() == "Windows":
-    ctypes.windll.shcore.SetProcessDpiAwareness(1)
 
 
 def interpret_code():
@@ -333,9 +336,13 @@ notebook = None
 
 def start_gui():
     global root, notebook
+    if platform.system() == "Windows":
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
     root = create_root()
     menu_bar = tk.Menu(root)
     file_menu = tk.Menu(menu_bar, tearoff=0)
+    file_menu.add_command(label="Output file",
+                          command=lambda: open_path(os.path.join(os.getcwd(), "output.csv")))
     file_menu.add_command(label="Detail Page Folder",
                           command=lambda: open_path(os.path.join(os.getcwd(), "detail_pages")))
     file_menu.add_command(label="Pagination Page Folder",
@@ -401,7 +408,7 @@ def open_path(path):
             subprocess.run(["xdg-open", path])  # Linux
     except Exception as e:
         # Show an error dialog if something goes wrong
-        messagebox.showerror("Error", f"Failed to open path: {e}")
+        messagebox.showerror("Error", f"Failed to open path: {path}: {e}")
 
 
 def on_exit(root, components, file_name):

@@ -84,8 +84,8 @@ It is also possible to user filters as `duration-start: before! -`, that will fi
 `after!` works similar:
 
 ```
-Dur-start: before! -
-Dur-end: after! ·
+dur-start: before! -
+dur-end: after! ·
 ```
 
 Another feature is extraction by regular expressions:

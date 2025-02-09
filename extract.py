@@ -275,8 +275,7 @@ def extract_selector_field(df, field_name, selector, soup):
             text = ''.join(f"<NODE {i + 1}>{match}" for i, match in enumerate(matches))
         elif len(matches) == 1:
             text = matches[0]
-    #REFAC
-    # FIXME: these should return a list of matches, not first or largest.
+    # REFAC
     elif selector.startswith("before!"):  # TODO Test
         before = selector.split('!', 1)[-1].strip()
         get_text = _collect_text_between_tags(str(soup))
@@ -291,7 +290,7 @@ def extract_selector_field(df, field_name, selector, soup):
             text = get_text
         else:
             text = get_text.split(after)[-1] if after in get_text else get_text
-    #REFAC END
+    # REFAC END
     else:
         html_nodes = soup.select(selector)
         text = extract_text(html_nodes)
@@ -307,7 +306,7 @@ def process_file(fields, filename, folder_path, write_out=True):
             html = file.read()
     except Exception as e:
         messagebox.showerror("Error", f"Failed to read file: {e}")
-        return
+        return False
 
     soup = BeautifulSoup(html, 'html.parser')
     df = pd.DataFrame(columns=_COLUMN_NAMES)
@@ -360,23 +359,36 @@ def extract(input_code, folders_or_files: List[str], no_duplicates=True, error_h
 
     if (not isinstance(folders_or_files, list)) and os.path.isdir(folders_or_files):
         folder_path = folders_or_files
-        print(f"folder_path: {folder_path}")
+        #print(f"folder_path: {folder_path}")
         total_files = len(os.listdir(folders_or_files))
         if total_files == 0:
-            return # Silent fail
+            return  # Silent fail
+
+        #REFAC
+        files_processed = False
         for i, filename in enumerate(os.listdir(folder_path)):
-            process_file(fields_as_dict, filename, folder_path)
+            if filename.lower().endswith(('.html', '.htm')):
+                process_file(fields_as_dict, filename, folder_path)
+                files_processed = True
             progress_callback(i / total_files)
+
+        if not files_processed:
+            messagebox.showerror("Error", "Nothing to extract from. Did you "
+                                          "pick the wrong folder?")
+            return False
+        #REFAC END
         with open(OUTPUT_CSV, 'r', encoding='utf-8') as f:
             content = f.read()
         with open(OUTPUT_CSV, 'w', encoding='utf-8', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(FINAL_COLUMNS)
             f.write(content)
+        return True
     elif testing:
         concat_df = pd.DataFrame()
         for file_path in folders_or_files:
             dir_name, file_name = os.path.split(file_path)
-            df = process_file(fields_as_dict, file_name, dir_name, write_out=False)
-            concat_df = pd.concat([concat_df, df])
+            if file_name.lower().endswith(('.html', '.htm')):
+                df = process_file(fields_as_dict, file_name, dir_name, write_out=False)
+                concat_df = pd.concat([concat_df, df])
         return concat_df
