@@ -12,7 +12,7 @@ from tkinter import filedialog, messagebox, ttk
 import os
 
 import scraper_gui
-from scraper_gui import create_gui_2, get_widget_list as scraper_gui_widget_list
+from scraper_gui import create_scraper_tab_gui, get_widget_list as scraper_gui_widget_list
 from component_state import *
 from extract import extract, OUTPUT_CSV
 from syntax_error_msgs import handle_syntax_error
@@ -38,6 +38,8 @@ def pick_files(test_files_entry):
     test_files_entry.insert(0, ', '.join(file_paths))
     global test_file_paths
     test_file_paths = list(file_paths)
+    # activate interpreter
+    interpret_code()
 
 
 def open_link(event, url):
@@ -75,7 +77,7 @@ def create_syntaxed_text_area(container):
     text_area = create_simple_ide_textfield(container)
 
     text_area.grid(row=1, column=1, sticky="nsew", pady=10, padx=10)
-    # ACTIVATES INTERPRETER
+    # Activates interpreter.
     text_area.bind('<KeyRelease>', schedule_process)
     container.grid_rowconfigure(1, weight=1)
     v_scrollbar = tk.Scrollbar(container, command=text_area.yview)
@@ -128,47 +130,29 @@ def create_refine_tab(notebook):
     pick_files_button = ttk.Button(text_field_button_frame, text="Pick test files",
                                    command=lambda: pick_files(test_files_entry))
     pick_files_button.pack(side=tk.LEFT, padx=10)
-
-    # REFAC
-    # root.after(0, lambda: create_text_area(
-    #    container))
-
-    # from ide_text_widget import create_ide_textfield
-
     root.after(0, lambda: create_syntaxed_text_area(
         container))
-
-    # REFAC SLUT
-
     paned_window.add(upper_frame)
     paned_window.add(lower_frame)
     root.update()
     paned_window.sash_place(0, 0, root.winfo_height() // 2)
-    # lower frame
-    # Configure grid layout for lower_frame
-    lower_frame.grid_rowconfigure(1, weight=1)  # Allow the table to expand
-    lower_frame.grid_columnconfigure(0, weight=1)  # Allow the table to expand horizontally
-
-    # Output label (inside lower_frame, at the top)
+    lower_frame.grid_rowconfigure(1, weight=1)
+    lower_frame.grid_columnconfigure(0, weight=1)
     output_text = tk.StringVar()
     output_text.set("Output")
     output_label = tk.Label(lower_frame, textvariable=output_text)
     output_label.grid(row=0, column=0, sticky="w")
-
-    # Table with scrollbar (inside lower_frame, in the middle)
     style = ttk.Style()
-    style.configure("Custom.Treeview", rowheight=28)  # Set the row height to 30
+    style.configure("Custom.Treeview", rowheight=28)
     table = ttk.Treeview(lower_frame, show="headings", style="Custom.Treeview")
     vsb = ttk.Scrollbar(lower_frame, orient="vertical", command=table.yview)
-    vsb.grid(row=1, column=1, sticky="ns")  # Place scrollbar next to the table
+    vsb.grid(row=1, column=1, sticky="ns")
     table.configure(yscrollcommand=vsb.set)
-    table.grid(row=1, column=0, sticky="nsew")  # Table fills the middle
-
-    # Status bar (inside lower_frame, at the bottom)
-    status_var = tk.StringVar()  # Create a StringVar for the status bar
-    status_var.set("")  # Set initial status
-    status_bar = tk.Label(lower_frame, textvariable=status_var, anchor=tk.W)  # Flat status bar
-    status_bar.grid(row=2, column=0, columnspan=2, sticky="ew")  # Span both columns and stick to the bottom
+    table.grid(row=1, column=0, sticky="nsew")
+    status_var = tk.StringVar()
+    status_var.set("")
+    status_bar = tk.Label(lower_frame, textvariable=status_var, anchor=tk.W)
+    status_bar.grid(row=2, column=0, columnspan=2, sticky="ew")
 
 
 def create_extract_tab(notebook):
@@ -227,6 +211,8 @@ def start_extract():
     global EXTRACT_TEXT_AREA, FOLDER_ENTRY
     folder_path = FOLDER_ENTRY.get().strip()
     code = EXTRACT_TEXT_AREA.get("1.0", tk.END).strip()
+    if code == "":
+        return
     try:
         ok = extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
                 progress_callback=update_progress_bar)
@@ -265,34 +251,68 @@ def pick_folder(root, entry_widget):
 def create_scrape_tab(notebook):
     frame = tk.Frame(notebook)
     notebook.add(frame, text='Scrape')
-    create_gui_2(frame)
+    create_scraper_tab_gui(frame)
 
+import argparse
 
 def create_root():
     root = tk.Tk()
-    # root.iconbitmap('icon.ico')
+    if not hasattr(sys, "_MEIPASS"):
+        root.iconbitmap('icon.ico')
     root.title("Skraepper")
-
-    # Apply the "clam" theme only on Linux
     if platform.system() == "Linux":
         style = ttk.Style(root)
         style.theme_use("clam")  # Set the theme to "clam"
-
     root.update_idletasks()
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    window_width = int(0.66 * screen_width)
-    window_height = int(window_width * 9 / 16)
-    window_x = int((screen_width - window_width) / 2)
-    window_y = int((screen_height - window_height) / 2)
-    root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}')
+    # window_width = int(0.66 * screen_width)
+    # window_height = int(window_width * 9 / 16)
+    # window_x = int((screen_width - window_width) / 2)
+    # window_y = int((screen_height - window_height) / 2)
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Skraepper Application")
+    parser.add_argument('-testmode', action='store_true', help="Enable test mode with fixed window size and position.")
+    args = parser.parse_args()
+
+    if not args.testmode:
+        # Main (default) mode: Window size based on screen dimensions, centered
+        window_width = int(0.66 * screen_width)
+        window_height = int(window_width * 9 / 16)
+        window_x = (screen_width - window_width) // 2
+        window_y = (screen_height - window_height) // 2
+    else:
+        # Test mode: Fixed size and position
+        print("Running in test mode")
+        window_width = 1200
+        window_height = 800
+        window_x = 100
+        window_y = 100
+
+    root.after(100, lambda: root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}'))
     return root
 
 
 def interpret_code():
     global text_area, fill
-    test_file_paths = test_files_entry.get().split(", ")
+
+    if test_files_entry.get().strip() != "":
+        test_file_paths = test_files_entry.get().split(", ")
+
+        for path in test_file_paths:
+            path = path.strip()  # Remove any extra whitespace
+            if not os.path.exists(path):
+                messagebox.showerror("Error", f"Test files '{path}' does not exist.")
+                return
+    else:
+        return
+
     code = text_area.get("1.0", tk.END)
+
+    if code.strip() == "":
+        return
+
     # Clear prev status msg
     update_status_bar("OK.", "gray")
     try:

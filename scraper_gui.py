@@ -19,6 +19,7 @@ if platform.system() == "Windows":
 
 hyperlink = None
 
+
 def sethyperlink(func):
     global hyperlink
     hyperlink = func
@@ -29,19 +30,53 @@ def get_widget_list():
     return widget_list
 
 
+from tkinter import messagebox
+from urllib.parse import urlparse
+
+
 def scrape_button_command():
     global PARENT
+
+    # Get values from widgets
+    pagination_url_template = widget["Pagination url"].get()
+    first_page = widget["First page"].get()
+    last_page = widget["Last page"].get()
+    detail_url_selector = widget["Detail page selector"].get()
+
+    # Check 1: Validate pagination URL template
+    test_url = pagination_url_template.replace("*", "1")
+    try:
+        result = urlparse(test_url)
+        # Check if the scheme is valid (only http or https allowed)
+        if not all([result.scheme, result.netloc]) or result.scheme not in ["http", "https"]:
+            messagebox.showerror("Invalid URL", "Invalid pagination URL template.")
+            return
+    except Exception as e:
+        messagebox.showerror("Invalid URL", f"An error occurred while validating the URL: {e}")
+        return
+
+    # Check 2: Validate first and last page are integers
+    try:
+        first_page_int = int(first_page)
+        last_page_int = int(last_page)
+        if first_page_int > last_page_int:
+            messagebox.showerror("Invalid Page Numbers", "First page must be before last page.")
+            return
+    except ValueError:
+        messagebox.showerror("Invalid Page Numbers", "First page and last page must be integers.")
+        return
+
+    # If all checks pass, proceed with scraping
     values = {
-        "pagination_url_template": widget["Pagination url"].get(),
-        "first_page": int(widget["First page"].get()),
-        "last_page": int(widget["Last page"].get()),
-        "detail_url_selector": widget["Detail page selector"].get(),
+        "pagination_url_template": pagination_url_template,
+        "first_page": first_page_int,
+        "last_page": last_page_int,
+        "detail_url_selector": detail_url_selector,
         "login_url": widget["Login page"].get(),
         "headless": widget["Headless"].get(),
         "persistent_session": widget["With session"].get(),
         "success_tokens": [item.strip() for item in widget["Success tokens"].get().split(",") if item.strip()],
         "failure_tokens": [item.strip() for item in widget["Failure tokens"].get().split(",") if item.strip()],
-
         "speed": widget["Speed"].get(),
         "log_handler_emitter": log_to_text_field,
         "parent": PARENT,
@@ -69,7 +104,7 @@ def create_upper_frame(parent):
     for i, label_text in enumerate(labels):
         label = ttk.Label(upper_frame, text=label_text, foreground="blue", cursor="hand2")
         label.grid(row=i, column=0, padx=10, pady=2, sticky="e")  # Right-align labels
-        label.bind("<Button-1>", lambda event, text=label_text: hyperlink(event,text))
+        label.bind("<Button-1>", lambda event, text=label_text: hyperlink(event, text))
         entry = ttk.Entry(upper_frame)
         entry.grid(row=i, column=1, padx=10, pady=2, sticky="ew")
         widget[label_text] = entry
@@ -79,16 +114,16 @@ def create_upper_frame(parent):
     options_label.grid(row=4, column=1, padx=10, pady=2, sticky="w")
     login_label = ttk.Label(upper_frame, text="Login/GDPR page", foreground="blue", cursor="hand2")
     login_label.grid(row=5, column=0, padx=10, pady=2, sticky="e")  # Right-align label
-    login_label.bind("<Button-1>", lambda event, text="Login page": hyperlink(event,text))
+    login_label.bind("<Button-1>", lambda event, text="Login page": hyperlink(event, text))
     login_entry = ttk.Entry(upper_frame)
     login_entry.grid(row=5, column=1, padx=10, pady=2, sticky="ew")
     widget["Login page"] = login_entry
     save_session_label = ttk.Label(upper_frame, text="With session", foreground="blue", cursor="hand2")
     save_session_label.grid(row=6, column=0, padx=10, pady=2, sticky="e")
-    save_session_label.bind("<Button-1>", lambda event, text="With session": hyperlink(event,text))
+    save_session_label.bind("<Button-1>", lambda event, text="With session": hyperlink(event, text))
     headless_label = ttk.Label(upper_frame, text="Headless", foreground="blue", cursor="hand2")
     headless_label.grid(row=7, column=0, padx=10, pady=2, sticky="e")
-    headless_label.bind("<Button-1>", lambda event, text="Headless": hyperlink(event,text))
+    headless_label.bind("<Button-1>", lambda event, text="Headless": hyperlink(event, text))
     save_session_var = tk.BooleanVar(value=False)
     headless_var = tk.BooleanVar(value=False)
     save_session_checkbox = ttk.Checkbutton(upper_frame, variable=save_session_var)
@@ -104,13 +139,13 @@ def create_upper_frame(parent):
     for token_text, row in tokens:
         label = ttk.Label(upper_frame, text=token_text, foreground="blue", cursor="hand2")
         label.grid(row=row, column=0, padx=10, pady=2, sticky="e")  # Right-align labels
-        label.bind("<Button-1>", lambda event, text=token_text: hyperlink(event,text))
+        label.bind("<Button-1>", lambda event, text=token_text: hyperlink(event, text))
         entry = ttk.Entry(upper_frame)
         entry.grid(row=row, column=1, padx=10, pady=2, sticky="ew")
         widget[token_text] = entry  # Store the entry in the widget dictionary
     speed_label = ttk.Label(upper_frame, text="Speed", foreground="blue", cursor="hand2")
     speed_label.grid(row=10, column=0, padx=10, pady=2, sticky="e")
-    speed_label.bind("<Button-1>", lambda event, text="Speed": hyperlink(event,text))
+    speed_label.bind("<Button-1>", lambda event, text="Speed": hyperlink(event, text))
     speed_frame = ttk.Frame(upper_frame)
     speed_frame.grid(row=10, column=1, padx=10, pady=2, sticky="w")
     speed_var = tk.StringVar(value="Normal")
@@ -123,14 +158,13 @@ def create_upper_frame(parent):
     button_frame.grid(row=11, column=1, padx=10, pady=2)
     scrape_button = ttk.Button(button_frame, text="Scrape", command=scrape_button_command)
     scrape_button.pack(side="left", padx=(0, 10))
-    #stop_button = ttk.Button(button_frame, text="Stop")
+    # stop_button = ttk.Button(button_frame, text="Stop")
 
     stop_button = ttk.Button(
         button_frame,
         text="Stop",
         command=scrape.stop_program  # Bind the button to the stop_program function
     )
-
 
     stop_button.pack(side="left")
     widget_list = list(widget.values())
@@ -156,7 +190,7 @@ def log_to_text_field(record):
     ))
 
 
-def create_gui_2(parent):
+def create_scraper_tab_gui(parent):
     parent.columnconfigure(0, weight=1)
     parent.rowconfigure(0, weight=1)
     paned_window = ttk.PanedWindow(parent, orient=tk.VERTICAL)

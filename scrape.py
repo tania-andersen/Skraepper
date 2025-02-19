@@ -220,7 +220,7 @@ def _scrape_paginated_pages(
         with open(os.path.join(PAGINATION_PAGES, page_filename), "w", encoding="utf-8") as f:
             f.write(page.content())
         logging.info(f"Saved pagination page {page_num} to {os.path.join(PAGINATION_PAGES, page_filename)}")
-        if detail_url_selector is not None:
+        if (detail_url_selector is not None) and (detail_url_selector.strip() != ""):
             detail_urls = _extract_urls(page, detail_url_selector, base_url=page_url)
             for detail_url in detail_urls:
                 _download_page(page, detail_url)
