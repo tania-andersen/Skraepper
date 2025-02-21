@@ -430,18 +430,29 @@ def on_tab_change(event):
         interpret_code()
 
 
+import os
+import sys
+import subprocess
+from tkinter import messagebox
+
+
 def open_path(path):
-    try:
-        # Open the path (file or folder) in a platform-independent way
-        if sys.platform == "win32":
-            os.startfile(path)  # Windows
-        elif sys.platform == "darwin":
-            subprocess.run(["open", path])  # macOS
-        else:
-            subprocess.run(["xdg-open", path])  # Linux
-    except Exception as e:
-        # Show an error dialog if something goes wrong
-        messagebox.showerror("Error", f"Failed to open path: {path}: {e}")
+    # Check if the file or folder exists
+    if os.path.exists(path):
+        try:
+            # Open the file or folder in a platform-independent way
+            if sys.platform == "win32":
+                os.startfile(path)  # Windows
+            elif sys.platform == "darwin":
+                subprocess.run(["open", path])  # macOS
+            else:
+                subprocess.run(["xdg-open", path])  # Linux
+        except Exception as e:
+            # Show an error dialog if something goes wrong during the opening process
+            messagebox.showerror("Error", f"Failed to open file or folder: {path}: {e}")
+    else:
+        # Show an error dialog if the file or folder does not exist
+        messagebox.showerror("Error", f"The file or folder does not exist: {path}")
 
 
 def on_exit(root, components, file_name):
