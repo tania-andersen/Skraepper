@@ -388,7 +388,7 @@ def start_gui():
     menu_bar.add_cascade(label="File", menu=file_menu)
     help_menu = tk.Menu(menu_bar, tearoff=0)
     help_menu.add_command(label="Help", command=lambda: open_link(None, ""))  # Rdef open_link(event, url):
-    help_menu.add_command(label="About", command=lambda: open_link(None, "about"))
+    help_menu.add_command(label="About", command=lambda: open_link(None, "about-1"))
     menu_bar.add_cascade(label="Help", menu=help_menu)
     root.config(menu=menu_bar)
     style = ttk.Style()
