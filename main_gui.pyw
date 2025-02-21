@@ -281,10 +281,6 @@ def create_root():
     root.update_idletasks()
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    # window_width = int(0.66 * screen_width)
-    # window_height = int(window_width * 9 / 16)
-    # window_x = int((screen_width - window_width) / 2)
-    # window_y = int((screen_height - window_height) / 2)
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Skraepper Application")
