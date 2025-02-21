@@ -38,7 +38,7 @@ def scrape_button_command():
     global PARENT
 
     # Get values from widgets
-    pagination_url_template = widget["Pagination url"].get()
+    pagination_url_template = widget["Pagination URL template"].get()
     first_page = widget["First page"].get()
     last_page = widget["Last page"].get()
     detail_url_selector = widget["Detail page selector"].get()
@@ -96,7 +96,7 @@ def create_upper_frame(parent):
     for i in range(12):
         upper_frame.rowconfigure(i, weight=1)
     labels = [
-        "Pagination url",
+        "Pagination URL template",
         "First page",
         "Last page",
         "Detail page selector"

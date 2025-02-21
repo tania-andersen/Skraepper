@@ -114,11 +114,11 @@ def create_refine_tab(notebook):
     container = tk.Frame(upper_frame, padx=10, highlightthickness=0)
     container.pack(fill='both', expand=True, pady=(10, 0))
     container.columnconfigure(1, weight=1, pad=10)
-    url = BASE_HELP_URL + "Test"
+    url = BASE_HELP_URL + "Test pages"
     label = tk.Label(container, text="Test pages", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="w")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
-    url = BASE_HELP_URL + "Skraeppex (Refine)"
+    url = BASE_HELP_URL + "Skraeppex refine"
     label = tk.Label(container, text="Skraeppex", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=1, column=0, sticky="ne", pady=10)
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
@@ -149,10 +149,22 @@ def create_refine_tab(notebook):
     vsb.grid(row=1, column=1, sticky="ns")
     table.configure(yscrollcommand=vsb.set)
     table.grid(row=1, column=0, sticky="nsew")
+    table.bind("<Control-c>", copy_selection)
     status_var = tk.StringVar()
     status_var.set("")
     status_bar = tk.Label(lower_frame, textvariable=status_var, anchor=tk.W)
     status_bar.grid(row=2, column=0, columnspan=2, sticky="ew")
+
+
+def copy_selection(event):
+    selected_item = table.selection()  # Get selected row(s)
+    if selected_item:
+        values = table.item(selected_item[0], "values")  # Get values of the first selected row
+        if values:
+            text = "\t".join(values)  # Join with tabs for easy spreadsheet pasting
+            root.clipboard_clear()
+            root.clipboard_append(text)
+            root.update()  # Required to clear buffer
 
 
 def create_extract_tab(notebook):
@@ -166,7 +178,7 @@ def create_extract_tab(notebook):
     label = tk.Label(container, text="Folder", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=0, column=0, sticky="e")
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
-    url = BASE_HELP_URL + "Skraeppex (Extract)"
+    url = BASE_HELP_URL + "Skraeppex extract"
     label = tk.Label(container, text="Skraeppex", anchor="e", fg="blue", cursor="hand2")
     label.grid(row=1, column=0, sticky="ne", pady=10)
     label.bind("<Button-1>", lambda event, endpoint=url: open_link(event, endpoint))
@@ -215,7 +227,7 @@ def start_extract():
         return
     try:
         ok = extract(input_code=code, folders_or_files=folder_path, no_duplicates=True, testing=False,
-                progress_callback=update_progress_bar)
+                     progress_callback=update_progress_bar)
         if ok:
             update_progress_bar(1.0)
             messagebox.showinfo("Extraction Complete", f"Extracted to {OUTPUT_CSV}.")
@@ -242,7 +254,8 @@ def pick_folder(root, entry_widget):
     :param root: The root window of the tkinter application.
     :param entry_widget: The Entry widget where the selected folder path will be inserted.
     """
-    folder_path = filedialog.askdirectory(parent=root, title="Select a folder")
+    folder_path = filedialog.askdirectory(parent=root, initialdir=os.getcwd(),
+                                          title="Select a folder")
     if folder_path:
         entry_widget.delete(0, tk.END)
         entry_widget.insert(0, folder_path)  #
@@ -253,7 +266,9 @@ def create_scrape_tab(notebook):
     notebook.add(frame, text='Scrape')
     create_scraper_tab_gui(frame)
 
+
 import argparse
+
 
 def create_root():
     root = tk.Tk()
@@ -278,10 +293,12 @@ def create_root():
 
     if not args.testmode:
         # Main (default) mode: Window size based on screen dimensions, centered
-        window_width = int(0.66 * screen_width)
+        window_width = int(0.75 * screen_width)
         window_height = int(window_width * 9 / 16)
         window_x = (screen_width - window_width) // 2
         window_y = (screen_height - window_height) // 2
+        root.after(100, lambda: root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}'))
+
     else:
         # Test mode: Fixed size and position
         print("Running in test mode")
@@ -289,8 +306,8 @@ def create_root():
         window_height = 800
         window_x = 100
         window_y = 100
+        root.after(1000, lambda: root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}'))
 
-    root.after(100, lambda: root.geometry(f'{window_width}x{window_height}+{window_x}+{window_y}'))
     return root
 
 

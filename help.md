@@ -33,7 +33,7 @@ Shows the About section in this document.
 
 This section describes the pagination options available in the program.
 
-### Pagination url
+### Pagination URL template
 
 Specifies the URL template to use for pagination. The template should include a placeholder for the page number, represented by an asterisk (`*`).
 
