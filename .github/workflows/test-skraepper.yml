@@ -50,7 +50,7 @@ jobs:
         env:
           TEST_SKRAEPPER: 1 # Set the environment variable
         run: |
-          python main_gui.pyw
+          python test_playwright_gui.py
 
       # Step 8: Debug - List contents of current working directory
       - name: List contents of current working directory
