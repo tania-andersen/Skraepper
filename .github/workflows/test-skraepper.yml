@@ -50,7 +50,7 @@ jobs:
         env:
           TEST_SKRAEPPER: 1 # Set the environment variable
         run: |
-          python tests/test_scraper_gui.py testscript . || Write-Host "Test script failed, but continuing..."
+          python tests/test_scraper_gui.py testscript . 
 
       # Step 8: Debug - List contents of current working directory
       - name: List contents of current working directory

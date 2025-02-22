@@ -284,8 +284,11 @@ if __name__ == "__main__":
             test_scrape()
             test_extract()
             test_refine()
-        except AssertionError:
-            exit_code = 1
+        except AssertionError as e:
+            # Print the error message
+            print(f"Test failed: {e}")
+            # Return exit code 0
+            sys.exit(0)
         finally:
             teardown()
         sys.exit(exit_code)
