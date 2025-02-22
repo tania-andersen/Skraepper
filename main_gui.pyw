@@ -369,6 +369,10 @@ notebook = None
 
 def start_gui():
     global root, notebook
+
+    # debug
+    print("GUI started (pre create root).")
+
     if platform.system() == "Windows":
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
     root = create_root()
