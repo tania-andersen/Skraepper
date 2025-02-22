@@ -185,6 +185,7 @@ def create_lower_frame(parent):
 
 def log_to_text_field(record):
     global lower_frame, log_text_widget
+    print(f"Log: {record.getMessage()}")
     lower_frame.after(0, lambda: (
         log_text_widget.insert("1.0", record.getMessage() + '\n')
     ))
