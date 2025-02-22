@@ -253,20 +253,29 @@ def teardown():
     global process
     if process:
         process.terminate()
-    result = subprocess.run(["taskkill", "/F", "/IM", exe_name], capture_output=True, text=True)
-    print(result.stdout.strip(), result.stderr.strip())
+    if test_type == "testexe":
+        result = subprocess.run(["taskkill", "/F", "/IM", exe_name], capture_output=True, text=True)
+        print(result.stdout.strip(), result.stderr.strip())
     print("Test completed. Process terminated.")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print(f"Usage: python {os.path.basename(__file__)} <EXE_NAME> <BASE_DIR> <TEST_TYPE>")
-        print("TEST_TYPE: 'testexe' to test the executable, 'testscript' to test the script.")
-        sys.exit(1)
 
-    exe_name = sys.argv[1]
-    base_dir = sys.argv[2]
-    test_type = sys.argv[3]
+    test_type = sys.argv[1]
+
+    if test_type == "testexe":
+        if len(sys.argv) != 4:
+            print(f"Bad args.")
+            sys.exit(1)
+        else:
+            exe_name = sys.argv[2]
+            base_dir = sys.argv[3]
+    elif test_type == "testscript":
+        if len(sys.argv) != 3:
+            print(f"Bad args.")
+            sys.exit(1)
+        else:
+            base_dir = sys.argv[2]
 
     if os.getenv('TEST_SKRAEPPER'):
         setup(test_type)

@@ -1,0 +1,53 @@
+name: Test Skraepper
+
+on:
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        # After this step, the working directory is the root of the repository.
+
+      # Step 2: Set up Python (latest version)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' # Use the latest stable Python 3.x version
+          architecture: 'x64'
+        # Working directory is still the root of the repository.
+
+      # Step 3: Create and activate virtual environment
+      - name: Create and activate virtual environment
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\Activate.ps1
+        # Working directory is still the root of the repository.
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          pip install -r requirements.txt
+        # Working directory is still the root of the repository.
+
+      # Step 5: Install Chromium for Playwright
+      - name: Install Chromium
+        shell: pwsh
+        run: |
+          playwright install chromium
+        # Working directory is still the root of the repository.
+
+      # Step 6: Set environment variable and run the test script
+      - name: Run test script
+        shell: pwsh
+        env:
+          TEST_SKRAEPPER: 1 # Set the environment variable
+        run: |
+          python tests/test_scraper_gui.py testscript .
+        # Working directory is still the root of the repository.
