@@ -65,3 +65,10 @@ jobs:
         run: |
           Write-Host "Contents of ./tests directory:"
           ls ./tests
+
+      # Step 10: Output component_state.py to console
+      - name: Output component_state.py
+        shell: pwsh
+        run: |
+          Write-Host "Contents of component_state.py:"
+          Get-Content -Path .\component_state.py
