@@ -50,7 +50,8 @@ jobs:
         env:
           TEST_SKRAEPPER: 1 # Set the environment variable
         run: |
-          python tests/test_scraper_gui.py testscript . 
+        #python tests/test_scraper_gui.py testscript .
+          python main_gui.pyw
 
       # Step 8: Debug - List contents of current working directory
       - name: List contents of current working directory
@@ -65,10 +66,3 @@ jobs:
         run: |
           Write-Host "Contents of ./tests directory:"
           ls ./tests
-
-      # Step 10: Output component_state.py to console
-      - name: Output component_state.py
-        shell: pwsh
-        run: |
-          Write-Host "Contents of component_state.py:"
-          Get-Content -Path .\component_state.py

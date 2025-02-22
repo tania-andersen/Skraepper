@@ -20,7 +20,7 @@ process = None
 def stream_output(process):
     """Continuously reads process output without blocking."""
     for line in iter(process.stdout.readline, ''):
-        print(f"[GUI Output] {line.strip()}")
+        print(f"[GUI Output] {line.strip()}", flush=True)
     process.stdout.close()
 
 
