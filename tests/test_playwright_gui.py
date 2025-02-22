@@ -4,14 +4,17 @@ import threading
 import time
 
 def create_gui():
+    print("pre root")
     """Creates a simple Tkinter GUI."""
     root = tk.Tk()
     root.title("Tkinter + Playwright Test")
     return root
 
 def launch_browser():
+    print("launch")
     """Launches a Playwright browser in a new thread."""
     def run_browser():
+        print("run browser")
         with sync_playwright() as p:
             # Launch a browser (Chromium, Firefox, or WebKit)
             browser = p.chromium.launch(headless=False)  # Set headless=False to see the browser
@@ -20,8 +23,10 @@ def launch_browser():
             # Navigate to a website
             page.goto("https://example.com")
 
+            print("after goto")
+
             # Wait for 2 seconds
-            time.sleep(2)
+
 
             # Print the title of the page
             title = page.title()
@@ -31,6 +36,7 @@ def launch_browser():
             browser.close()
 
     # Run the browser in a separate thread to avoid blocking the Tkinter event loop
+    time.sleep(2)
     browser_thread = threading.Thread(target=run_browser)
     browser_thread.start()
 
