@@ -44,10 +44,24 @@ jobs:
         run: |
           playwright install chromium
 
-      # Step 7: Set environment variable and run the test script
+      # Step 7: Run test script
       - name: Run test script
         shell: pwsh
         env:
           TEST_SKRAEPPER: 1 # Set the environment variable
         run: |
           python tests/test_scraper_gui.py testscript .
+
+      # Step 8: Debug - List contents of current working directory
+      - name: List contents of current working directory
+        shell: pwsh
+        run: |
+          Write-Host "Contents of current working directory:"
+          ls
+
+      # Step 9: Debug - List contents of ./tests directory
+      - name: List contents of ./tests directory
+        shell: pwsh
+        run: |
+          Write-Host "Contents of ./tests directory:"
+          ls ./tests
