@@ -5,6 +5,8 @@
 #
 # Run script with:
 # powershell -ExecutionPolicy Bypass
+# or from src:
+# Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force; irm https://raw.githubusercontent.com/tania-andersen/Skraepper/main/tests/windows/test_skraepper.ps1 | iex
 
 # Step 1: Check if the OS is Windows 11
 $osInfo = Get-ComputerInfo | Select-Object -ExpandProperty OsName
