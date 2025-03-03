@@ -5,7 +5,7 @@ A GUI scraper for journalists and researchers.
 
 Uses its own build-in browser for scraping.
 
-[Second and fina beta release of version 0.9 out now!](https://github.com/tania-andersen/Skraepper/releases/)
+[Second and final beta release of version 0.9 out now!](https://github.com/tania-andersen/Skraepper/releases/)
 
 <img src="https://github.com/tania-andersen/Skraepper/blob/main/website/scrape-example.png" alt="Scraper interface" width="600" />
 
