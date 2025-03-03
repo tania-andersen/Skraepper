@@ -114,7 +114,7 @@ you have made a mistake in the code.
 
 # About
 
-About Scraepper version 0.9.
+About Skraepper version 0.9.
 
 Copyright © Tania Andersen 2025.
 
@@ -122,7 +122,7 @@ License: Affero General Public License https://github.com/tania-andersen/Skraepp
 
 ------------------------------------
 
-Scraepper uses these fine softwares:
+Skraepper uses these fine softwares:
 
 
 - Python
