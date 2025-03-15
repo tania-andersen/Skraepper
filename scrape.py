@@ -129,6 +129,20 @@ def _create_page(p, headless):
         CONTEXT = browser.new_context()
         logging.info("Created new context")
     page = CONTEXT.new_page()
+
+    # Get the current User-Agent
+    user_agent = page.evaluate("navigator.userAgent")
+
+    # Replace "HeadlessChrome" with "Chrome"
+    new_user_agent = user_agent.replace("HeadlessChrome", "Chrome")
+
+    # Assert it does not contains "HeadlessChrome"
+    assert "HeadlessChrome" not in new_user_agent, "User-Agent contains 'HeadlessChrome'"
+
+    # Set Playwright's user-agent to the modified one
+    context = browser.new_context(user_agent=new_user_agent)
+    page = context.new_page()
+
     return browser, page
 
 
